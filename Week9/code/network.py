@@ -91,14 +91,15 @@ class Network(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    exp_scores = np.exp(scores)
+    exp_scores = scores - np.max(scores, axis=1, keepdims=True)
+    exp_scores = np.exp(exp_scores)
     # softmax
     y_probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
     # Cross-entropy
-    safe_yprobs = -np.log(y_probs[range(N), y])
+    safe_yprobs = -np.log(y_probs[(range(N), y)])
     # loss = dataloss + regloss
     loss = np.sum(safe_yprobs) / N
-    loss += 0*5 * reg * (np.sum(W1 * W2) + np.sum(W2 * W2))
+    loss += reg * (np.sum(W1 * W2) + np.sum(W2 * W2))
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -124,8 +125,8 @@ class Network(object):
     grads['b1'] = np.sum(dhidden, axis = 0)
 
     # regulation gradients
-    grads['W2'] += reg * W2
-    grads['W1'] += reg * W1
+    grads['W2'] += 2 * reg * W2
+    grads['W1'] += 2 * reg * W1
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -162,8 +163,6 @@ class Network(object):
     val_acc_history = []
 
     for it in range(num_iters):
-      X_batch = None
-      y_batch = None
 
       #########################################################################
       # TODO: Create a random minibatch of training data and labels, storing  #
