@@ -99,7 +99,8 @@ class Network(object):
     safe_yprobs = -np.log(y_probs[(range(N), y)])
     # loss = dataloss + regloss
     loss = np.sum(safe_yprobs) / N
-    loss += reg * (np.sum(W1 * W2) + np.sum(W2 * W2))
+    #loss += reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
+    loss += reg * (np.sum(W1 @ W1.T) + np.sum(W2 @ W2.T))
 
     #############################################################################
     #                              END OF YOUR CODE                             #
@@ -169,6 +170,8 @@ class Network(object):
       # them in X_batch and y_batch respectively.                             #
       #########################################################################
       # create mask
+      if batch_size > num_train:
+          batch_size = num_train
       mask = np.random.choice(num_train, batch_size, replace=False)
       X_batch = X[mask]
       y_batch = y[mask]
